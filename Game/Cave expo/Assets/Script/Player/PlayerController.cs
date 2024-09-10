@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour
     public Transform playerCamera;
     private PlayerCheckpoint playerCheckpoint;
     public Transform sword;
+    public EnemyController enemy;
 
     [SerializeField] private float playerSpeed = 5f;
     [SerializeField] private float playerRotation = 720f;
@@ -35,13 +36,18 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
         playerCheckpoint = GetComponent<PlayerCheckpoint>();
-        Debug.Log($"isGrounded {isGrounded}");
+        
     }
     void Update()
     {
         movement = new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical"));
 
         HandleAnimations();
+
+        if (playerHP >= 0)
+        {
+
+        }
     }
     void moveCharacter()
     {
@@ -58,7 +64,6 @@ public class PlayerController : MonoBehaviour
 
         Vector3 worldMovement = moveDirection * playerSpeed * Time.deltaTime;
         rb.AddForce(transform.position + worldMovement * playerSpeed * Time.fixedDeltaTime);
-        //rb.MovePosition(transform.position + worldMovement);
 
         if (moveDirection != Vector3.zero)
         {
@@ -68,6 +73,7 @@ public class PlayerController : MonoBehaviour
     }
     private void OnCollisionEnter(Collision collision)
     {
+        isGrounded = true;
         Debug.Log("OnCollisionEnter void works");
         if (collision.gameObject.CompareTag("Ground"))
         {
@@ -78,7 +84,6 @@ public class PlayerController : MonoBehaviour
     }
     private void OnCollisionExit(Collision collision)
     {
-        Debug.Log("void OnCollisionExit works");
         if (!collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = false;
@@ -87,13 +92,13 @@ public class PlayerController : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        if (sword.transform.gameObject.tag == "Enemy")
+        if (other.CompareTag("Enemy"))
         {
-            Debug.Log("Attacked");
-        }
-        if (sword.transform.CompareTag("Enemy"))
-        {
-            Debug.Log("Attacked 2");
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("RightHand@Attack01"))
+            {
+                Attack();
+            }
+            
         }
     }
     protected void HandleAnimations()
@@ -112,11 +117,12 @@ public class PlayerController : MonoBehaviour
         {
             animator.SetBool("isWalking", false);
         }
-        if (Input.GetButtonDown("Fire1"))
+        if (Input.GetButtonUp("Fire1"))
         {
             animator.SetTrigger("Attacks");
+            StartCoroutine(DisableSwordColliderAfterAttack());
         }
-        if (Input.GetButtonDown("Fire2"))
+        if (Input.GetButtonUp("Fire2"))
         {
             shieldProtect = true;
             animator.SetTrigger("Block");
@@ -129,5 +135,9 @@ public class PlayerController : MonoBehaviour
     protected void Attack()
     {
         
+    }
+    private IEnumerator DisableSwordColliderAfterAttack()
+    {
+        yield return new WaitForSeconds(0.5f); 
     }
 }

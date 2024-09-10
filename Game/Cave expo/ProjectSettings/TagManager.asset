@@ -7,6 +7,7 @@ TagManager:
   - Collide
   - Ground
   - Enemy
+  - Checkpoint
   layers:
   - Default
   - TransparentFX
