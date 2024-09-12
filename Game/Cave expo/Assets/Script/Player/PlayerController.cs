@@ -7,7 +7,6 @@ using System.Threading;
 using UnityEditor.Experimental.GraphView;
 using UnityEditor.ShaderKeywordFilter;
 using UnityEngine;
-using static UnityEditor.Searcher.SearcherWindow.Alignment;
 
 
 public class PlayerController : MonoBehaviour
@@ -17,12 +16,14 @@ public class PlayerController : MonoBehaviour
     public Transform playerCamera;
     private PlayerCheckpoint playerCheckpoint;
     public Transform sword;
-    public EnemyController enemy;
+    private GameObject enemy;
+    private EnemyController enemyController;
+
 
     [SerializeField] private float playerSpeed = 5f;
     [SerializeField] private float playerRotation = 720f;
     [SerializeField] private float playerJump = 20f;
-    [SerializeField] private int playerAttack = 5;
+    [SerializeField] public float playerAttack = 5f;
     [SerializeField] private float playerHP = 100f;
     [SerializeField] private bool shieldProtect = false;
 
@@ -35,19 +36,16 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-        playerCheckpoint = GetComponent<PlayerCheckpoint>();
         
+        playerCheckpoint = GetComponent<PlayerCheckpoint>();
+        enemy = GameObject.FindGameObjectWithTag("Enemy");
+        enemyController = enemy.GetComponent<EnemyController>();
     }
     void Update()
     {
         movement = new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical"));
 
         HandleAnimations();
-
-        if (playerHP >= 0)
-        {
-
-        }
     }
     void moveCharacter()
     {
@@ -70,6 +68,11 @@ public class PlayerController : MonoBehaviour
             Quaternion toRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, playerRotation * Time.deltaTime);
         }
+
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            playerSpeed += 2.5f;
+        }
     }
     private void OnCollisionEnter(Collision collision)
     {
@@ -80,7 +83,13 @@ public class PlayerController : MonoBehaviour
             isGrounded = true;
             Debug.Log($"isGrounded {isGrounded}");
         }
-        
+        if (sword.CompareTag("Enemy"))
+        {
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("RightHand@Attack01"))
+            {
+                Attack();
+            }
+        }
     }
     private void OnCollisionExit(Collision collision)
     {
@@ -88,17 +97,6 @@ public class PlayerController : MonoBehaviour
         {
             isGrounded = false;
             Debug.Log($"isGrounded {isGrounded}");
-        }
-    }
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Enemy"))
-        {
-            if (animator.GetCurrentAnimatorStateInfo(0).IsName("RightHand@Attack01"))
-            {
-                Attack();
-            }
-            
         }
     }
     protected void HandleAnimations()
@@ -131,13 +129,34 @@ public class PlayerController : MonoBehaviour
         {
             shieldProtect = false;
         }
+        if (playerHP >= 0)
+        {
+
+        }
     }
     protected void Attack()
     {
+        Debug.Log(enemyController.health);
         
+        enemyController.GetHit(playerAttack);
+        Debug.Log(enemyController.health);
+    }
+    public void GetHit(float amount)
+    {
+        //animator.SetTrigger("GetHit");
+        Debug.Log("Got hit by enemy");
+        playerHP -= amount;
     }
     private IEnumerator DisableSwordColliderAfterAttack()
     {
-        yield return new WaitForSeconds(0.5f); 
+        yield return new WaitForSeconds(0.7f); 
+    }
+    private IEnumerator ShieldCooldown()
+    {
+        yield return new WaitForSeconds(4f);
+    }
+    private void Death()
+    {
+        
     }
 }

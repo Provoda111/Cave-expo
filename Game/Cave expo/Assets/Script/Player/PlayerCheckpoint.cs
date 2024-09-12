@@ -19,7 +19,10 @@ public class PlayerCheckpoint : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        switch (currentCheckpoint)
+        {
+
+        }
     }
     private void OnTriggerEnter(Collider other)
     {
@@ -50,7 +53,6 @@ public class PlayerCheckpoint : MonoBehaviour
         {
             player.position = playerCheckpoint[currentCheckpoint].position;
             currentCheckpoint = checkpointIndex;
-
         }
     }
 }

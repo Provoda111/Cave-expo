@@ -5,6 +5,7 @@ using UnityEngine.AI;
 
 public class EnemyController : MonoBehaviour
 {
+    [SerializeField] private PlayerController playerController;
     [SerializeField] private Transform player;
     private NavMeshAgent agent; // Компонент NavMeshAgent
 
@@ -13,6 +14,7 @@ public class EnemyController : MonoBehaviour
     public float attackRadius = 2f;
     public float attackCooldown = 1.5f;
     private float lastAttackTime = 0f;
+    public float enemyAttack = 5f;
 
     // Точки патрулирования
     public Transform[] patrolPoints;
@@ -23,7 +25,7 @@ public class EnemyController : MonoBehaviour
     private float waitTimer;
 
     private float speed;
-    private float health;
+    public float health = 30f;
 
     private Animator animator;
 
@@ -32,6 +34,9 @@ public class EnemyController : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+        player = GameObject.FindGameObjectWithTag("Player").transform;
+
+        playerController = player.GetComponent<PlayerController>();
         if (patrolPoints.Length > 0)
         {
             currentPatrolIndex = 0;
@@ -95,8 +100,9 @@ public class EnemyController : MonoBehaviour
     }
     void Attack()
     {
-        // Логика атаки (можно добавить анимации, урон и т.д.)
         Debug.Log("Враг атакует!");
+        playerController.GetHit(enemyAttack);
+        StartCoroutine(DisableSwordColliderAfterAttack());
     }
     void OnDrawGizmosSelected()
     {
@@ -112,13 +118,29 @@ public class EnemyController : MonoBehaviour
         if (patrolPoints.Length > 0)
         {
             agent.SetDestination(patrolPoints[currentPatrolIndex].position);
-
             // Переход к следующей точке (зацикливаем список)
             currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
-
             // Устанавливаем таймер ожидания
             waitTimer = waitTimeAtPatrolPoint;
         }
     }
+    public void GetHit(float amount)
+    {
+        animator.SetTrigger("GotHit");
+        health -= amount;
+        Debug.Log(health);
+    }
+    private void Death()
+    {
 
+        StartCoroutine(WaitForDelete());
+    }
+    private IEnumerator DisableSwordColliderAfterAttack()
+    {
+        yield return new WaitForSeconds(1.1f);
+    }
+    private IEnumerator WaitForDelete()
+    {
+        yield return new WaitForSeconds(5f);
+    }
 }
