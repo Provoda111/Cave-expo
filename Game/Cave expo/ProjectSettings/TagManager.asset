@@ -8,6 +8,9 @@ TagManager:
   - Ground
   - Enemy
   - Checkpoint
+  - EnemySword
+  - Cube
+  - Sword
   layers:
   - Default
   - TransparentFX

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO.Pipes;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -29,14 +30,14 @@ public class EnemyController : MonoBehaviour
 
     private Animator animator;
 
-
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
         player = GameObject.FindGameObjectWithTag("Player").transform;
-
         playerController = player.GetComponent<PlayerController>();
+
+
         if (patrolPoints.Length > 0)
         {
             currentPatrolIndex = 0;
@@ -56,7 +57,6 @@ public class EnemyController : MonoBehaviour
         else if (distanceToTarget <= attackRadius)
         {
             agent.isStopped = true;
-
             // Проверяем время между атаками
             if (Time.time > lastAttackTime + attackCooldown)
             {
@@ -95,14 +95,8 @@ public class EnemyController : MonoBehaviour
         }
         if (health <= 0)
         {
-            animator.SetBool("", false);
+            Death();
         }
-    }
-    void Attack()
-    {
-        Debug.Log("Враг атакует!");
-        playerController.GetHit(enemyAttack);
-        StartCoroutine(DisableSwordColliderAfterAttack());
     }
     void OnDrawGizmosSelected()
     {
@@ -130,17 +124,35 @@ public class EnemyController : MonoBehaviour
         health -= amount;
         Debug.Log(health);
     }
+    void Attack()
+    {
+        animator.SetTrigger("Attacks");
+        playerController.GetHit(enemyAttack);
+        StartCoroutine(DisableSwordColliderAfterAttack());
+    }
     private void Death()
     {
-
+        animator.SetTrigger("Death");
         StartCoroutine(WaitForDelete());
     }
     private IEnumerator DisableSwordColliderAfterAttack()
     {
-        yield return new WaitForSeconds(1.1f);
+        yield return new WaitForSeconds(1.5f);
     }
     private IEnumerator WaitForDelete()
     {
         yield return new WaitForSeconds(5f);
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "Sword")
+        {
+            playerController.Attack();
+            //GetHit();
+        }
+    }
+    public void DebugTest()
+    {
+        print("Test Debugging Test");
     }
 }

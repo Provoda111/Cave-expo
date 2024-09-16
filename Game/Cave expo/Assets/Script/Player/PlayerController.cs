@@ -1,6 +1,3 @@
-using RPGCharacterAnims.Actions;
-using RPGCharacterAnims.Extensions;
-using RPGCharacterAnims.Lookups;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
@@ -18,7 +15,13 @@ public class PlayerController : MonoBehaviour
     public Transform sword;
     private GameObject enemy;
     private EnemyController enemyController;
-
+    
+    private AudioSource audioSource;
+    public AudioClip swordMiss;
+    public AudioClip swordTouch;
+    public AudioClip shield;
+    public AudioClip PlayerDamage;
+    public AudioClip PlayerArmorDamage;
 
     [SerializeField] private float playerSpeed = 5f;
     [SerializeField] private float playerRotation = 720f;
@@ -31,15 +34,17 @@ public class PlayerController : MonoBehaviour
     public Vector3 moveDirection;
 
     private bool isGrounded;
-
+    private float enemyAttack;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
         
         playerCheckpoint = GetComponent<PlayerCheckpoint>();
         enemy = GameObject.FindGameObjectWithTag("Enemy");
-        enemyController = enemy.GetComponent<EnemyController>();
+        enemyAttack = enemy.GetComponent<EnemyController>().enemyAttack;
+        
     }
     void Update()
     {
@@ -54,21 +59,19 @@ public class PlayerController : MonoBehaviour
 
         Vector3 forward = playerCamera.forward;
         Vector3 right = playerCamera.right;
-
         forward.y = 0f; right.y = 0f;
         forward.Normalize(); right.Normalize();
-
         moveDirection = (forward * moveZ + right * moveX).normalized;
-
         Vector3 worldMovement = moveDirection * playerSpeed * Time.deltaTime;
-        rb.AddForce(transform.position + worldMovement * playerSpeed * Time.fixedDeltaTime);
+        rb.AddForce(transform.position + worldMovement * playerSpeed * Time.deltaTime);
 
         if (moveDirection != Vector3.zero)
         {
             Quaternion toRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, playerRotation * Time.deltaTime);
         }
-
+        /*Quaternion toRotation = Quaternion.LookRotation(moveDirection);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, playerRotation * Time.deltaTime);*/
         if (Input.GetKey(KeyCode.LeftShift))
         {
             playerSpeed += 2.5f;
@@ -76,19 +79,9 @@ public class PlayerController : MonoBehaviour
     }
     private void OnCollisionEnter(Collision collision)
     {
-        isGrounded = true;
-        Debug.Log("OnCollisionEnter void works");
         if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = true;
-            Debug.Log($"isGrounded {isGrounded}");
-        }
-        if (sword.CompareTag("Enemy"))
-        {
-            if (animator.GetCurrentAnimatorStateInfo(0).IsName("RightHand@Attack01"))
-            {
-                Attack();
-            }
         }
     }
     private void OnCollisionExit(Collision collision)
@@ -96,12 +89,28 @@ public class PlayerController : MonoBehaviour
         if (!collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = false;
-            Debug.Log($"isGrounded {isGrounded}");
+        }
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        /*if (sword.CompareTag("Enemy"))
+        {
+            Debug.Log("Test1");
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("RightHand@Attack01"))
+            {
+                Debug.Log("Attacked");
+                audioSource.PlayOneShot(swordTouch);
+                Attack();
+            }
+        }*/
+        if (other.gameObject.tag == "EnemySword")
+        {
+            GetHit(enemyAttack);
         }
     }
     protected void HandleAnimations()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        if (Input.GetButtonUp("Jump") && isGrounded)
         {
             rb.AddForce(new Vector3(0, 200, 0), ForceMode.Impulse);
             animator.SetTrigger("Jump");
@@ -124,39 +133,44 @@ public class PlayerController : MonoBehaviour
         {
             shieldProtect = true;
             animator.SetTrigger("Block");
+            StartCoroutine(ShieldCooldown());
         }
         else
         {
             shieldProtect = false;
         }
-        if (playerHP >= 0)
+        if (playerHP <= 0)
         {
-
+            animator.SetTrigger("Death");
         }
     }
-    protected void Attack()
+    public void Attack()
     {
-        Debug.Log(enemyController.health);
-        
-        enemyController.GetHit(playerAttack);
-        Debug.Log(enemyController.health);
+        enemy.GetComponent<EnemyController>().GetHit(playerAttack);
+        Debug.Log("Got damage");
     }
     public void GetHit(float amount)
     {
-        //animator.SetTrigger("GetHit");
-        Debug.Log("Got hit by enemy");
-        playerHP -= amount;
+        if (shieldProtect)
+        {
+            audioSource.PlayOneShot(shield);
+        }
+        else
+        {
+            animator.SetTrigger("GetHit");
+            playerHP -= amount;
+        }
+    }
+    private void Stunned()
+    {
+        animator.SetTrigger("Stunned");
     }
     private IEnumerator DisableSwordColliderAfterAttack()
     {
-        yield return new WaitForSeconds(0.7f); 
+        yield return new WaitForSeconds(1.2f); 
     }
     private IEnumerator ShieldCooldown()
     {
-        yield return new WaitForSeconds(4f);
-    }
-    private void Death()
-    {
-        
+        yield return new WaitForSeconds(2.4f);
     }
 }

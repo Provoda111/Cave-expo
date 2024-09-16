@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class HealthPotion : Obstacle
+/*public class HealthPotion : Obstacle
 {
     public float addHealth = 20f;
 
@@ -18,3 +18,4 @@ public class HealthPotion : Obstacle
         
     }
 }
+*/
