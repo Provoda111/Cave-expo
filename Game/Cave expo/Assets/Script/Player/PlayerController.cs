@@ -1,3 +1,4 @@
+using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
@@ -35,6 +36,8 @@ public class PlayerController : MonoBehaviour
 
     private bool isGrounded;
     private float enemyAttack;
+
+    public CinemachineFreeLook freeLookCam;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -63,15 +66,15 @@ public class PlayerController : MonoBehaviour
         forward.Normalize(); right.Normalize();
         moveDirection = (forward * moveZ + right * moveX).normalized;
         Vector3 worldMovement = moveDirection * playerSpeed * Time.deltaTime;
-        rb.AddForce(transform.position + worldMovement * playerSpeed * Time.deltaTime);
+        //rb.AddForce(transform.position + worldMovement * playerSpeed * Time.deltaTime);
+        rb.MovePosition(transform.position + worldMovement);
 
         if (moveDirection != Vector3.zero)
         {
             Quaternion toRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, playerRotation * Time.deltaTime);
         }
-        /*Quaternion toRotation = Quaternion.LookRotation(moveDirection);
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, playerRotation * Time.deltaTime);*/
+       
         if (Input.GetKey(KeyCode.LeftShift))
         {
             playerSpeed += 2.5f;
