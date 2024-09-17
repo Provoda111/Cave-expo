@@ -11,6 +11,7 @@ TagManager:
   - EnemySword
   - Cube
   - Sword
+  - RadiationWater
   layers:
   - Default
   - TransparentFX

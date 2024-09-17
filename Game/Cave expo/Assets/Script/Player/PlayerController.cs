@@ -48,7 +48,7 @@ public class PlayerController : MonoBehaviour
         enemy = GameObject.FindGameObjectWithTag("Enemy");
         enemyAttack = enemy.GetComponent<EnemyController>().enemyAttack;
         Cursor.visible = false;
-        
+        Cursor.lockState = CursorLockMode.Locked;
     }
     void Update()
     {
