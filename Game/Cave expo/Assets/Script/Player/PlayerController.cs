@@ -20,9 +20,9 @@ public class PlayerController : MonoBehaviour
     private AudioSource audioSource;
     public AudioClip swordMiss;
     public AudioClip swordTouch;
-    public AudioClip shield;
-    public AudioClip PlayerDamage;
-    public AudioClip PlayerArmorDamage;
+    public AudioClip shieldTouched;
+    public AudioClip PlayerGetDamage;
+    public AudioClip PlayerGetArmorDamage;
 
     [SerializeField] private float playerSpeed = 5f;
     [SerializeField] private float playerRotation = 720f;
@@ -37,21 +37,28 @@ public class PlayerController : MonoBehaviour
     private bool isGrounded;
     private float enemyAttack;
 
-    public CinemachineFreeLook freeLookCam;
+    public GameObject health1Level;
+    public GameObject health2Level;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
-        
         playerCheckpoint = GetComponent<PlayerCheckpoint>();
         enemy = GameObject.FindGameObjectWithTag("Enemy");
         enemyAttack = enemy.GetComponent<EnemyController>().enemyAttack;
+        Cursor.visible = false;
         
     }
     void Update()
     {
         movement = new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical"));
+
+        if (playerHP <= 40)
+        {
+            health1Level.SetActive(true);
+            health2Level.SetActive(true);
+        }
 
         HandleAnimations();
     }
@@ -66,8 +73,8 @@ public class PlayerController : MonoBehaviour
         forward.Normalize(); right.Normalize();
         moveDirection = (forward * moveZ + right * moveX).normalized;
         Vector3 worldMovement = moveDirection * playerSpeed * Time.deltaTime;
-        //rb.AddForce(transform.position + worldMovement * playerSpeed * Time.deltaTime);
-        rb.MovePosition(transform.position + worldMovement);
+        rb.AddForce(transform.position + worldMovement * playerSpeed * Time.deltaTime);
+        //rb.MovePosition(transform.position + worldMovement);
 
         if (moveDirection != Vector3.zero)
         {
@@ -96,16 +103,6 @@ public class PlayerController : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        /*if (sword.CompareTag("Enemy"))
-        {
-            Debug.Log("Test1");
-            if (animator.GetCurrentAnimatorStateInfo(0).IsName("RightHand@Attack01"))
-            {
-                Debug.Log("Attacked");
-                audioSource.PlayOneShot(swordTouch);
-                Attack();
-            }
-        }*/
         if (other.gameObject.tag == "EnemySword")
         {
             GetHit(enemyAttack);
@@ -134,8 +131,8 @@ public class PlayerController : MonoBehaviour
         }
         if (Input.GetButtonUp("Fire2"))
         {
-            shieldProtect = true;
             animator.SetTrigger("Block");
+            shieldProtect = true;
             StartCoroutine(ShieldCooldown());
         }
         else
@@ -154,13 +151,15 @@ public class PlayerController : MonoBehaviour
     }
     public void GetHit(float amount)
     {
-        if (shieldProtect)
+        if (shieldProtect && animator.GetCurrentAnimatorStateInfo(0).IsName("Shield@ShieldAttack01"))
         {
-            audioSource.PlayOneShot(shield);
+            audioSource.PlayOneShot(shieldTouched);
         }
         else
         {
             animator.SetTrigger("GetHit");
+            audioSource.PlayOneShot(PlayerGetDamage);
+            audioSource.PlayOneShot(PlayerGetArmorDamage);
             playerHP -= amount;
         }
     }
