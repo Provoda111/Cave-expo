@@ -98,6 +98,7 @@ public class PlayerController : MonoBehaviour
     {
         if (!collision.gameObject.CompareTag("Ground"))
         {
+            Debug.Log("isGrounded false");
             isGrounded = false;
         }
     }
@@ -105,7 +106,10 @@ public class PlayerController : MonoBehaviour
     {
         if (other.gameObject.tag == "EnemySword")
         {
-            GetHit(enemyAttack);
+            if (enemy.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Attack1h1"))
+            {
+                enemy.GetComponent<EnemyController>().Attack();
+            }
         }
     }
     protected void HandleAnimations()

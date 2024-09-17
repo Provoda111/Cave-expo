@@ -124,7 +124,7 @@ public class EnemyController : MonoBehaviour
         health -= amount;
         Debug.Log(health);
     }
-    void Attack()
+    public void Attack()
     {
         animator.SetTrigger("Attacks");
         playerController.GetHit(enemyAttack);
