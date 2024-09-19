@@ -1,57 +1,41 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
-
 public class PlayerCheckpoint : MonoBehaviour
 {
     public Transform player;
-    public Transform[] playerCheckpoint;
     private int currentCheckpoint = -1;
-
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
     void Update()
     {
-        switch (currentCheckpoint)
+        if (Input.GetKeyDown(KeyCode.L) && currentCheckpoint >= 0)
         {
-
+            LoadPlayerCheckpoint(currentCheckpoint);
         }
     }
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Checkpoint"))
         {
-            for (int i = 0; i < playerCheckpoint.Length; i++)
+            Transform[] playerCheckpoints = GameObject.FindGameObjectsWithTag("Checkpoint").Select(go => go.transform).ToArray();
+            for (int i = 0; i < playerCheckpoints.Length; i++)
             {
-                if (playerCheckpoint[i] == other.transform)
+                if (playerCheckpoints[i] == other.transform)
                 {
                     currentCheckpoint = i;
+                    Debug.Log("Touched checkpoint: " + currentCheckpoint);
                     break;
                 }
             }
         }
     }
+    public void LoadPlayerCheckpoint(int checkpointIndex)
+    {
+        Transform[] playerCheckpoints = GameObject.FindGameObjectsWithTag("Checkpoint").Select(go => go.transform).ToArray();
 
-    void savePlayerCheckpoint()
-    {
-        if (player.CompareTag("Checkpoint"))
+        if (checkpointIndex >= 0 && checkpointIndex < playerCheckpoints.Length)
         {
-            currentCheckpoint += 1;
-            Debug.Log("Touched checkpoint");
-        }
-    }
-    void loadPlayerCheckpoint(int checkpointIndex)
-    {
-        if (checkpointIndex >= 0 && checkpointIndex < playerCheckpoint.Length)
-        {
-            player.position = playerCheckpoint[currentCheckpoint].position;
+            player.position = playerCheckpoints[checkpointIndex].position;
             currentCheckpoint = checkpointIndex;
         }
     }
