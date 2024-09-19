@@ -28,7 +28,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float playerRotation = 720f;
     [SerializeField] private float playerJump = 20f;
     [SerializeField] public float playerAttack = 5f;
-    [SerializeField] private float playerHP = 100f;
+    [SerializeField] public float playerHP = 100f;
     [SerializeField] private bool shieldProtect = false;
 
     public Vector3 movement;
