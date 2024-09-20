@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 9e38f8557cac638469dc5777ed307c54
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - Albert Text
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: b6cdddfe6a0ae3044b3417a48c35f24d, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

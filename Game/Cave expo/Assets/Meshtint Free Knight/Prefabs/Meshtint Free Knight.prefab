@@ -193,7 +193,7 @@ GameObject:
   - component: {fileID: 95382778294392932}
   m_Layer: 0
   m_Name: Meshtint Free Knight
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -238,6 +238,7 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1087546517206048
 GameObject:
   m_ObjectHideFlags: 0

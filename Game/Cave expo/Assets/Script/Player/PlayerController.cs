@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private float playerSpeed = 5f;
     [SerializeField] private float playerRotation = 720f;
-    [SerializeField] private float playerJump = 20f;
+    //[SerializeField] private float playerJump = 20f;
     [SerializeField] public float playerAttack = 5f;
     [SerializeField] public float playerHP = 100f;
     [SerializeField] private bool shieldProtect = false;
@@ -72,14 +72,12 @@ public class PlayerController : MonoBehaviour
         forward.Normalize(); right.Normalize();
         moveDirection = (forward * moveZ + right * moveX).normalized;
         Vector3 worldMovement = moveDirection * playerSpeed * Time.deltaTime;
-        rb.AddForce(transform.position + worldMovement * playerSpeed * Time.deltaTime);
+        rb.velocity = new Vector3(moveDirection.x * playerSpeed, rb.velocity.y, moveDirection.z * playerSpeed);
+        //rb.AddForce(transform.position + worldMovement * playerSpeed * Time.deltaTime);
 
-        if (moveDirection != Vector3.zero)
-        {
-            Quaternion toRotation = Quaternion.LookRotation(moveDirection);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, playerRotation * Time.deltaTime);
-        }
-       
+        Quaternion toRotation = Quaternion.LookRotation(moveDirection);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, playerRotation * Time.deltaTime); 
+
         if (Input.GetKey(KeyCode.LeftShift))
         {
             playerSpeed += 2.5f;

@@ -36,9 +36,14 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (playerController.playerHP <= 0)
+        /*if (playerController.playerHP <= 0)
         {
 
+        }*/
+        if (endStateText == null)
+        {
+            //Debug.LogError("endStateText is not assigned!");
+            return;
         }
         switch (endState)
         {

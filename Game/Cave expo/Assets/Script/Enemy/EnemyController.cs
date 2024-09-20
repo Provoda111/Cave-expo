@@ -112,17 +112,17 @@ public class EnemyController : MonoBehaviour
         if (patrolPoints.Length > 0)
         {
             agent.SetDestination(patrolPoints[currentPatrolIndex].position);
-            // Переход к следующей точке (зацикливаем список)
+           
             currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
-            // Устанавливаем таймер ожидания
+            
             waitTimer = waitTimeAtPatrolPoint;
         }
     }
     public void GetHit(float amount)
     {
-        animator.SetTrigger("GotHit");
         health -= amount;
-        Debug.Log(health);
+        animator.SetTrigger("GotHit");
+        Debug.Log("Enemy health: " + health);
     }
     public void Attack()
     {
@@ -148,7 +148,6 @@ public class EnemyController : MonoBehaviour
         if (other.gameObject.tag == "Sword")
         {
             playerController.Attack();
-            //GetHit();
         }
     }
     public void DebugTest()
