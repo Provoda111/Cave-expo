@@ -16,8 +16,6 @@ public class Paper : MonoBehaviour
 
     private void Start()
     {
-        /*bookUI.SetActive(false);
-        interactUI.SetActive(false);*/
         audioSource = gameObject.AddComponent<AudioSource>();
     }
     private void Update()
@@ -48,18 +46,15 @@ public class Paper : MonoBehaviour
     private void OpenBook()
     {
         isReading = true;
-
         bookUI.SetActive(true);
+        audioSource.Play();
         interactUI.SetActive(false);
     }
     private void CloseBook()
     {
-        isReading = false;  
-
+        isReading = false; 
         bookUI.SetActive(false);
-
         audioSource.Stop();
-
         interactUI.SetActive(true);
     }
 }

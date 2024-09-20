@@ -45,7 +45,8 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
         playerCheckpoint = GetComponent<PlayerCheckpoint>();
-        enemy = GameObject.FindGameObjectWithTag("Enemy");
+        //enemy = GameObject.FindGameObjectWithTag("Enemy");
+        enemy = GameObject.FindWithTag("Enemy");
         enemyAttack = enemy.GetComponent<EnemyController>().enemyAttack;
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
