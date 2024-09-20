@@ -8,20 +8,17 @@ public class EnemyController : MonoBehaviour
 {
     [SerializeField] private PlayerController playerController;
     [SerializeField] private Transform player;
-    private NavMeshAgent agent; // Компонент NavMeshAgent
+    private NavMeshAgent agent;
 
-    // Радиус, в пределах которого враг начинает следовать за игроком
     public float detectionRadius = 10f;
     public float attackRadius = 2f;
     public float attackCooldown = 1.5f;
     private float lastAttackTime = 0f;
     public float enemyAttack = 5f;
 
-    // Точки патрулирования
     public Transform[] patrolPoints;
     private int currentPatrolIndex;
 
-    // Время ожидания на каждой точке
     public float waitTimeAtPatrolPoint = 2f;
     private float waitTimer;
 
@@ -47,24 +44,19 @@ public class EnemyController : MonoBehaviour
     void Update()
     {
         float distanceToTarget = Vector3.Distance(transform.position, player.position);
-
-        // Если игрок в зоне обнаружения, начать следовать за ним
         if (distanceToTarget <= detectionRadius && distanceToTarget > attackRadius)
         {
             agent.SetDestination(player.position);
         }
-        // Если игрок достаточно близко, атаковать
         else if (distanceToTarget <= attackRadius)
         {
             agent.isStopped = true;
-            // Проверяем время между атаками
             if (Time.time > lastAttackTime + attackCooldown)
             {
                 Attack();
                 lastAttackTime = Time.time;
             }
         }
-        // Если игрок не в зоне, патрулировать
         else if (!agent.pathPending && agent.remainingDistance < 0.5f)
         {
             Patrol();
@@ -100,7 +92,6 @@ public class EnemyController : MonoBehaviour
     }
     void OnDrawGizmosSelected()
     {
-        // Визуализация радиусов обнаружения и атаки
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRadius);
         Gizmos.color = Color.yellow;
@@ -108,7 +99,6 @@ public class EnemyController : MonoBehaviour
     }
     void MoveToNextPatrolPoint()
     {
-        // Если есть патрульные точки
         if (patrolPoints.Length > 0)
         {
             agent.SetDestination(patrolPoints[currentPatrolIndex].position);
