@@ -12,6 +12,7 @@ TagManager:
   - Cube
   - Sword
   - RadiationWater
+  - Obelisk
   layers:
   - Default
   - TransparentFX

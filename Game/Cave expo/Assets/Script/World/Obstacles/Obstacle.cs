@@ -3,37 +3,36 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public abstract class Obstacle : MonoBehaviour
+public class Obstacle : MonoBehaviour
 {
-    // Для унаследования
-    protected bool isHealthPotion;
-    protected bool isSpeedPotion;
+    public GameObject obstacleUI;
+    public Transform player;
+    public Transform obstacle;
+    public float interactionDistance = 1.5f;
+    private bool canInteract = false;
 
-    public abstract void ApplyEffect(GameObject player);
-
-    public TMP_Text obstacleNameText;
-    private PlayerController playerController;
-    private Transform player;
-    private void Start()
-    {
-        player = GameObject.FindGameObjectWithTag("Player").transform;
-    }
     private void Update()
     {
-        // Проверка, если игрок рядом с объектом, то может его использовать нажав на E. Появляется интерфейс
-    }
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            ShowUI();
-        }
-    }
-    public void ShowUI()
-    {
-        if (player.transform.position == gameObject.transform.position)
-        {
+        float distanceX = Mathf.Abs(player.position.x - obstacle.position.x);
+        float distanceZ = Mathf.Abs(player.position.z - obstacle.position.z);
 
+        if (distanceX <= interactionDistance && distanceZ <= interactionDistance)
+        {
+            obstacleUI.SetActive(true);
+            canInteract = true;
         }
+        else
+        {
+            obstacleUI.SetActive(false);
+            canInteract = false;
+        }
+        if (canInteract && Input.GetKeyUp(KeyCode.E))
+        {
+            ActivateHealthPotion();
+        }
+    }
+    void ActivateHealthPotion()
+    {
+        Debug.Log("A");
     }
 }

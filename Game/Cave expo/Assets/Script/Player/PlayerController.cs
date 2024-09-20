@@ -38,7 +38,7 @@ public class PlayerController : MonoBehaviour
     private float enemyAttack;
 
     public GameObject health1Level;
-    public GameObject health2Level;
+    private GameManager gameManager;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -57,7 +57,6 @@ public class PlayerController : MonoBehaviour
         if (playerHP <= 40)
         {
             health1Level.SetActive(true);
-            health2Level.SetActive(true);
         }
 
         HandleAnimations();
@@ -74,7 +73,6 @@ public class PlayerController : MonoBehaviour
         moveDirection = (forward * moveZ + right * moveX).normalized;
         Vector3 worldMovement = moveDirection * playerSpeed * Time.deltaTime;
         rb.AddForce(transform.position + worldMovement * playerSpeed * Time.deltaTime);
-        //rb.MovePosition(transform.position + worldMovement);
 
         if (moveDirection != Vector3.zero)
         {
