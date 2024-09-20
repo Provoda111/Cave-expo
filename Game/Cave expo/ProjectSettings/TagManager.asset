@@ -13,6 +13,7 @@ TagManager:
   - Sword
   - RadiationWater
   - Obelisk
+  - Key
   layers:
   - Default
   - TransparentFX
