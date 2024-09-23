@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using Mono.Data.Sqlite;
 using System.IO;
+using UnityEngine.SceneManagement;
 
 enum EndState { Died, Winned }
 
@@ -22,6 +23,10 @@ public class GameManager : MonoBehaviour
     private PlayerController playerController;
     private EndState endState;
     public TMP_Text endStateText;
+    private bool inMainMenu = false;
+
+    public GameObject mainMenuCanvas;
+    public GameObject endMenuCanvas;
     // Start is called before the first frame update
     void Start()
     {
@@ -32,17 +37,10 @@ public class GameManager : MonoBehaviour
             CreateDatabase();
         }
     }
-
-    // Update is called once per frame
     void Update()
     {
-        /*if (playerController.playerHP <= 0)
-        {
-
-        }*/
         if (endStateText == null)
         {
-            //Debug.LogError("endStateText is not assigned!");
             return;
         }
         switch (endState)
@@ -53,7 +51,20 @@ public class GameManager : MonoBehaviour
             case EndState.Winned:
                 endStateText.text = "You winned!";
                 break;
+            default:
+                endStateText.text = string.Empty;
+                break;
         }
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            DrawEndMenu();
+            inMainMenu = true;
+        }
+        else if (Input.GetKeyUp(KeyCode.Escape) && inMainMenu)
+        {
+            ExitMainMenu();
+        }
+
     }
     private void CreateDatabase()
     {
@@ -108,16 +119,21 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-    void DrawEndMenu()
+    public void DrawEndMenu()
     {
-
+        mainMenuCanvas.SetActive(true);
     }
-    void RestartGame()
+    public void RestartGame()
     {
-
+        SceneManager.LoadScene("Sample Scene");
     }
-    void EnterMainMenu()
+    public void LeaveGame()
     {
-
+        Application.Quit();
+    }
+    public void ExitMainMenu()
+    {
+        mainMenuCanvas.SetActive(false);
+        inMainMenu = false;
     }
 }

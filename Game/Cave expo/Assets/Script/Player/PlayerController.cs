@@ -27,15 +27,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float playerSpeed = 5f;
     [SerializeField] private float playerRotation = 720f;
     //[SerializeField] private float playerJump = 20f;
-    [SerializeField] public float playerAttack = 5f;
-    [SerializeField] public float playerHP = 100f;
+    [SerializeField] public float playerAttack = 5;
+    [SerializeField] public float playerHP = 100;
     [SerializeField] private bool shieldProtect = false;
+    private bool playerGotAttacked = false;
 
     public Vector3 movement;
     public Vector3 moveDirection;
 
     private bool isGrounded;
-    private float enemyAttack;
 
     public GameObject health1Level;
     private GameManager gameManager;
@@ -45,10 +45,8 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
         playerCheckpoint = GetComponent<PlayerCheckpoint>();
-        //enemy = GameObject.FindGameObjectWithTag("Enemy");
         enemy = GameObject.FindWithTag("Enemy");
-        enemyAttack = enemy.GetComponent<EnemyController>().enemyAttack;
-        Cursor.visible = false;
+        //Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
     }
     void Update()
@@ -59,7 +57,18 @@ public class PlayerController : MonoBehaviour
         {
             health1Level.SetActive(true);
         }
-
+        if (playerGotAttacked)
+        {
+            animator.SetTrigger("GetHit");
+            playerHP -= enemyController.enemyAttack;
+            audioSource.PlayOneShot(PlayerGetDamage);
+            audioSource.PlayOneShot(PlayerGetArmorDamage);
+            playerGotAttacked = false;
+        }
+        else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Shield@ShieldAttack01"))
+        {
+            audioSource.PlayOneShot(shieldTouched);
+        }
         HandleAnimations();
     }
     void moveCharacter()
@@ -101,12 +110,10 @@ public class PlayerController : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "EnemySword")
+        enemyController = other.GetComponent<EnemyController>();
+        if (other.gameObject.CompareTag("EnemySword") && enemyController.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Attack1h1"))
         {
-            if (enemy.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Attack1h1"))
-            {
-                enemy.GetComponent<EnemyController>().Attack();
-            }
+            GetHit();
         }
     }
     protected void HandleAnimations()
@@ -147,21 +154,20 @@ public class PlayerController : MonoBehaviour
     }
     public void Attack()
     {
-        enemy.GetComponent<EnemyController>().GetHit(playerAttack);
         Debug.Log("Got damage");
     }
-    public void GetHit(float amount)
+    public void GetHit()
     {
         if (shieldProtect && animator.GetCurrentAnimatorStateInfo(0).IsName("Shield@ShieldAttack01"))
         {
             audioSource.PlayOneShot(shieldTouched);
         }
-        else
+        else if (!shieldProtect)
         {
             animator.SetTrigger("GetHit");
+            playerHP -= 5;
             audioSource.PlayOneShot(PlayerGetDamage);
             audioSource.PlayOneShot(PlayerGetArmorDamage);
-            playerHP -= amount;
         }
     }
     private void Stunned()

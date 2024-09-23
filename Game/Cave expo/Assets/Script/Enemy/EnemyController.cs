@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO.Pipes;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -14,7 +15,8 @@ public class EnemyController : MonoBehaviour
     public float attackRadius = 2f;
     public float attackCooldown = 1.5f;
     private float lastAttackTime = 0f;
-    public float enemyAttack = 5f;
+    public float enemyAttack = 5;
+    private float playerAttack;
 
     public Transform[] patrolPoints;
     private int currentPatrolIndex;
@@ -23,7 +25,7 @@ public class EnemyController : MonoBehaviour
     private float waitTimer;
 
     private float speed;
-    public float health = 30f;
+    public float health = 30;
 
     private Animator animator;
 
@@ -33,6 +35,7 @@ public class EnemyController : MonoBehaviour
         animator = GetComponent<Animator>();
         player = GameObject.FindGameObjectWithTag("Player").transform;
         playerController = player.GetComponent<PlayerController>();
+        playerAttack = playerController.playerAttack;
 
 
         if (patrolPoints.Length > 0)
@@ -108,22 +111,26 @@ public class EnemyController : MonoBehaviour
             waitTimer = waitTimeAtPatrolPoint;
         }
     }
-    public void GetHit(float amount)
+    public void GetHit()
     {
-        health -= amount;
+        health -= 10f;
         animator.SetTrigger("GotHit");
-        Debug.Log("Enemy health: " + health);
+        if (health <= 0)
+        {
+            Death();
+        }
+
     }
     public void Attack()
     {
         animator.SetTrigger("Attacks");
-        playerController.GetHit(enemyAttack);
         StartCoroutine(DisableSwordColliderAfterAttack());
     }
     private void Death()
     {
         animator.SetTrigger("Death");
         StartCoroutine(WaitForDelete());
+        Destroy(gameObject);
     }
     private IEnumerator DisableSwordColliderAfterAttack()
     {
@@ -135,9 +142,9 @@ public class EnemyController : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "Sword")
+        if (other.gameObject.tag == "Sword" && player.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("RightHand@Attack01"))
         {
-            playerController.Attack();
+            GetHit();
         }
     }
     public void DebugTest()
